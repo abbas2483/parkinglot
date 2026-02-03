@@ -3,7 +3,18 @@
 import { motion } from 'framer-motion';
 import { ParkingSquare, Zap, Shield, TrendingUp, Clock, MapPin } from 'lucide-react';
 
+/**
+ * 🎨 Hero Section - The Welcome Mat
+ * 
+ * This is the first thing people see when they open the app!
+ * We want to make a great first impression with smooth animations,
+ * feature highlights, and a clear message: "Parking just got easier!"
+ * 
+ * Fun fact: Those floating background gradients? They never stop moving!
+ * Creates a living, breathing feel to the page. ✨
+ */
 export default function HeroSection() {
+  // The cool features we're proud to show off
   const features = [
     {
       icon: Clock,

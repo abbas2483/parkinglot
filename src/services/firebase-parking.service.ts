@@ -12,32 +12,47 @@ import { db } from '@/lib/firebase';
 import { ParkingSlot, ParkVehicleRequest, ParkingAllocationResult } from '@/types/parking.types';
 
 /**
- * Firebase-powered Service Layer for Parking Lot Business Logic
- * All data is persisted in Firestore for real-time synchronization
+ * 🎯 Firebase-Powered Parking Service
+ * 
+ * Think of this as the brain of our parking system! This service talks to Firebase
+ * (Google's cloud database) to save and retrieve parking data. Everything you do -
+ * booking a spot, leaving a spot, checking availability - goes through here.
+ * 
+ * Why Firebase? Because it's like having a super-reliable assistant who never forgets,
+ * works 24/7, and keeps everything in sync across all devices in real-time! 
  */
 export class FirebaseParkingService {
   private collectionName = 'parkingSlots';
 
   /**
-   * Add a new parking slot to Firestore
-   * Maximum 40 slots allowed (auto-initialized on startup)
+   * 📝 Add a New Parking Slot
+   * 
+   * Creates a brand new parking spot in our system. We limit it to 40 slots max
+   * (like a real parking lot!). Each slot gets a number, distance from entrance,
+   * and whatever special features you want (covered, EV charging, or just regular).
+   * 
+   * @param isCovered - Does this spot have a roof? (protects from rain/sun)
+   * @param isEVCharging - Can electric cars charge here?
+   * @returns The newly created parking slot with all its details
    */
   async addSlot(isCovered: boolean, isEVCharging: boolean): Promise<ParkingSlot> {
     try {
-      // Get current slots
+      // First, let's see how many spots we already have
       const slots = await this.getAllSlots();
       
-      // Check if we've reached the maximum limit of 40 slots
+      // Safety check: Can't have more than 40 spots (our parking lot is only so big!)
       if (slots.length >= 40) {
         throw new Error('Maximum parking lot capacity (40 slots) reached');
       }
       
-      // Get next slot number
+      // Figure out what number this new slot should be (1, 2, 3... up to 40)
       const nextSlotNumber = slots.length > 0 
         ? Math.max(...slots.map(s => s.slotNo)) + 1 
         : 1;
 
-      // Calculate distance from entry (10 meters per slot number for simulation)
+      // Calculate how far this spot is from the entrance
+      // We're simulating 10 meters between each slot number
+      // So slot 1 = 10m, slot 2 = 20m, etc. (closer slots have lower numbers!)
       const distanceFromEntry = nextSlotNumber * 10;
 
       const newSlot = {
@@ -100,8 +115,20 @@ export class FirebaseParkingService {
   }
 
   /**
-   * Park a vehicle - Allocates the nearest available matching slot
-   * Algorithm: Find the lowest distanceFromEntry that matches requirements
+   * 🚗 Park a Vehicle - The Smart Way!
+   * 
+   * This is where the magic happens! You tell us what you need (EV charging? Covered spot?)
+   * and we find you the NEAREST available slot that matches. No more driving around!
+   * 
+   * How we do it:
+   * 1. Look at all empty (available) spots
+   * 2. Filter out spots that don't have what you need
+   * 3. Sort by distance from entrance (closer = better!)
+   * 4. Pick the first one - that's your spot!
+   * 5. Mark it as occupied with your vehicle number
+   * 
+   * @param request - What you need (EV? Covered? Your vehicle number)
+   * @returns Success message with your slot number, or error if no match found
    */
   async parkVehicle(request: ParkVehicleRequest): Promise<ParkingAllocationResult> {
     try {

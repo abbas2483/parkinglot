@@ -14,16 +14,30 @@ import OutputPanel from '@/components/OutputPanel';
 import ActivityLog from '@/components/ActivityLog';
 import { initializeParkingLot } from '@/services/parking-lot-initializer';
 
+/**
+ * 🏠 Home Page - The Control Center
+ * 
+ * This is mission control! Everything happens here:
+ * - See all 40 parking spots at a glance
+ * - Book a spot with one click
+ * - Add new parking spaces
+ * - Check live statistics
+ * 
+ * We use React hooks (useState, useEffect) to keep everything in sync.
+ * When you book a spot, the grid updates instantly - no page refresh needed!
+ */
 export default function Home() {
-  const [slots, setSlots] = useState<ParkingSlot[]>([]);
-  const [outputMessage, setOutputMessage] = useState<string>('');
-  const [outputType, setOutputType] = useState<'success' | 'error' | 'info'>('info');
-  const [activeTab, setActiveTab] = useState<'add' | 'park' | 'remove'>('add');
-  const [showBookingModal, setShowBookingModal] = useState(false);
-  const [selectedSlot, setSelectedSlot] = useState<(ParkingSlot & { id: string }) | null>(null);
-  const [vehicleNumberInput, setVehicleNumberInput] = useState('');
+  // State management - keeping track of everything that changes
+  const [slots, setSlots] = useState<ParkingSlot[]>([]);  // All our parking spots
+  const [outputMessage, setOutputMessage] = useState<string>('');  // Messages to show users
+  const [outputType, setOutputType] = useState<'success' | 'error' | 'info'>('info');  // Message type
+  const [activeTab, setActiveTab] = useState<'add' | 'park' | 'remove'>('add');  // Which tab is selected
+  const [showBookingModal, setShowBookingModal] = useState(false);  // Show/hide booking popup
+  const [selectedSlot, setSelectedSlot] = useState<(ParkingSlot & { id: string }) | null>(null);  // Which slot was clicked
+  const [vehicleNumberInput, setVehicleNumberInput] = useState('');  // User's license plate
 
-  // Fetch slots on mount and when updated
+  // Fetch all parking slots from our database
+  // This runs every time we need fresh data (after booking, adding, removing)
   const fetchSlots = async () => {
     try {
       const response = await fetch('/api/slots');
@@ -36,7 +50,8 @@ export default function Home() {
     }
   };
 
-  // Initialize parking lot with 40 slots on first load
+  // Initialize parking lot on first load
+  // This creates all 40 parking spots automatically if they don't exist yet!
   useEffect(() => {
     const initialize = async () => {
       try {
@@ -51,13 +66,15 @@ export default function Home() {
 
     initialize();
     fetchSlots();
-  }, []);
+  }, []);  // Empty array means "run this once when the page loads"
 
+  // Show messages to users (success, error, or info)
+  // Messages auto-disappear after 5 seconds - no manual closing needed!
   const handleOutput = (message: string, type: 'success' | 'error' | 'info') => {
     setOutputMessage(message);
     setOutputType(type);
     
-    // Auto-clear after 5 seconds
+    // Auto-clear after 5 seconds so users aren't confused by old messages
     setTimeout(() => {
       setOutputMessage('');
     }, 5000);
