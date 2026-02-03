@@ -320,7 +320,7 @@ export default function QuickAssign({ onOutput, onAssigned }: QuickAssignProps) 
 
           {/* Helper Text */}
           <p className="text-center text-gray-400 text-sm mt-4">
-            💡 Can't find the right spot? Try <span className="text-purple-400 font-semibold">manual selection</span> below
+            💡 Can&apos;t find the right spot? Try <span className="text-purple-400 font-semibold">manual selection</span> below
           </p>
         </>
       )}

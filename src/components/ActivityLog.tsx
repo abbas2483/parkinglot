@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Clock, Car, LogOut, Activity } from 'lucide-react';
 
@@ -28,8 +28,8 @@ export default function ActivityLog() {
     }
   }, []);
 
-  // Helper function to add activity (can be called from parent)
-  const addActivity = (type: 'park' | 'remove', slotNo: number, vehicleNumber?: string) => {
+  // Helper function to add activity (wrapped in useCallback for stable reference)
+  const addActivity = useCallback((type: 'park' | 'remove', slotNo: number, vehicleNumber?: string) => {
     const newActivity: ActivityLogEntry = {
       id: Date.now().toString(),
       type,
@@ -38,10 +38,12 @@ export default function ActivityLog() {
       timestamp: new Date().toISOString(),
     };
 
-    const updated = [newActivity, ...activities].slice(0, 50); // Keep last 50
-    setActivities(updated);
-    localStorage.setItem('parking-activity-log', JSON.stringify(updated));
-  };
+    setActivities((prev) => {
+      const updated = [newActivity, ...prev].slice(0, 50); // Keep last 50
+      localStorage.setItem('parking-activity-log', JSON.stringify(updated));
+      return updated;
+    });
+  }, []);
 
   // Expose addActivity to parent via window (for demo purposes)
   useEffect(() => {
@@ -54,7 +56,7 @@ export default function ActivityLog() {
         delete (window as WindowWithActivity).addParkingActivity;
       };
     }
-  }, []);
+  }, [addActivity]);
 
   const formatTime = (isoString: string) => {
     const date = new Date(isoString);
