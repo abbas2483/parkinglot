@@ -367,6 +367,6 @@ Created as an assignment project, but the code is real and ready for the world!
 
 **Questions? Found a bug? Want to contribute?** Open an issue or pull request!
 
-**Live Demo**: Coming soon to Vercel! 🚀
+**Live Demo**: https://parkinglot3235.vercel.app 🚀
 
 **Built with**: Next.js | React | TypeScript | Firebase | Framer Motion | Tailwind CSS | Love ❤️

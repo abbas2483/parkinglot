@@ -12,6 +12,7 @@ import SlotGrid from '@/components/SlotGrid';
 import Statistics from '@/components/Statistics';
 import OutputPanel from '@/components/OutputPanel';
 import ActivityLog from '@/components/ActivityLog';
+import QuickAssign from '@/components/QuickAssign';
 import { initializeParkingLot } from '@/services/parking-lot-initializer';
 
 /**
@@ -95,6 +96,7 @@ export default function Home() {
   const handleSlotClick = (slot: ParkingSlot & { id: string }) => {
     if (!slot.isOccupied) {
       setSelectedSlot(slot);
+      setVehicleNumberInput(''); // Reset input when opening modal
       setShowBookingModal(true);
     }
   };
@@ -155,6 +157,9 @@ export default function Home() {
 
         {/* Statistics */}
         <Statistics slots={slots} />
+
+        {/* Quick Auto-Assign Section */}
+        <QuickAssign onOutput={handleOutput} onAssigned={handleVehicleParked} />
 
         {/* Main Content Grid */}
         <div className="grid lg:grid-cols-2 gap-8 mb-8">
@@ -236,6 +241,7 @@ export default function Home() {
 
           {/* Right Column - Slot Grid */}
           <motion.div
+            id="parking-grid"
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
